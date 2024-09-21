@@ -7,11 +7,16 @@ import DeleteConfirmation from "./components/DeleteConfirmation.jsx";
 import logoImg from "./assets/logo.png";
 import { sortPlacesByDistance } from "./loc.js";
 
+// Load existing places from localStorage as initial state pickedPlaces
+const storedIds = JSON.parse(localStorage.getItem("selectedPlaces")) || [];
+const storedPlaces = storedIds.map((id) => AVAILABLE_PLACES.find((place) => place.id === id));
+
 export default function App() {
 	const modal = useRef();
+	// selectedPlace = id
 	const selectedPlace = useRef();
 	const [availablePlaces, setAvailablePlaces] = useState([]);
-	const [pickedPlaces, setPickedPlaces] = useState([]);
+	const [pickedPlaces, setPickedPlaces] = useState(storedPlaces);
 
 	useEffect(() => {
 		navigator.geolocation.getCurrentPosition((position) => {
@@ -53,6 +58,12 @@ export default function App() {
 	function handleRemovePlace() {
 		setPickedPlaces((prevPickedPlaces) => prevPickedPlaces.filter((place) => place.id !== selectedPlace.current));
 		modal.current.close();
+
+		// retrieve places saved in localStorage
+		const storedIds = JSON.parse(localStorage.getItem("selectedPlaces")) || [];
+		// update localStorage, remove a place
+		const updatedIds = storedIds.filter((id) => id !== selectedPlace.current);
+		localStorage.setItem("selectedPlaces", JSON.stringify(updatedIds));
 	}
 
 	return (
