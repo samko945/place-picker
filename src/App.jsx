@@ -5,11 +5,21 @@ import { AVAILABLE_PLACES } from "./data.js";
 import Modal from "./components/Modal.jsx";
 import DeleteConfirmation from "./components/DeleteConfirmation.jsx";
 import logoImg from "./assets/logo.png";
+import { sortPlacesByDistance } from "./loc.js";
 
 export default function App() {
 	const modal = useRef();
 	const selectedPlace = useRef();
+	const [availablePlaces, setAvailablePlaces] = useState([]);
 	const [pickedPlaces, setPickedPlaces] = useState([]);
+
+	navigator.geolocation.getCurrentPosition((position) => {
+		const sortedPlaces = sortPlacesByDistance(
+			AVAILABLE_PLACES,
+			position.coords.latitude,
+			position.coords.longitude
+		);
+	});
 
 	function handleStartRemovePlace(id) {
 		modal.current.open();
@@ -53,7 +63,7 @@ export default function App() {
 					places={pickedPlaces}
 					onSelectPlace={handleStartRemovePlace}
 				/>
-				<Places title="Available Places" places={AVAILABLE_PLACES} onSelectPlace={handleSelectPlace} />
+				<Places title="Available Places" places={availablePlaces} onSelectPlace={handleSelectPlace} />
 			</main>
 		</>
 	);
