@@ -1,14 +1,28 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+
+const TIMER_DURATION = 3000;
 
 export default function DeleteConfirmation({ onConfirm, onCancel }) {
-	// Confirm the modal automatically after 3000ms
+	const [remainingTime, setRemainingTime] = useState(TIMER_DURATION);
+
+	// Update remainingTime every 10ms
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setRemainingTime((prev) => prev - 10);
+		}, 10);
+		return () => {
+			clearInterval(interval);
+		};
+	}, []);
+
+	// Confirm the modal automatically
 	// use useCallback hook on functions passed as dependencies, in this case it's the handleRemovePlace function definition that needs to be passed into useCallback
 	//    otherwise this will create an infinite loop if this component is not removed manually with conditional rendering
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			onConfirm();
-		}, 3000);
-		// cleanup function runs before component dismounts
+		}, TIMER_DURATION);
+		// Cleanup function runs before component dismounts
 		return () => {
 			clearTimeout(timer);
 		};
@@ -26,6 +40,7 @@ export default function DeleteConfirmation({ onConfirm, onCancel }) {
 					Yes
 				</button>
 			</div>
+			<progress value={remainingTime} max={TIMER_DURATION} />
 		</div>
 	);
 }
